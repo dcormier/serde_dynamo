@@ -22,7 +22,7 @@ impl<'de, 'a> SeqAccess<'de> for DeserializerSeq {
     where
         T: DeserializeSeed<'de>,
     {
-        if let Some(value) = self.iter.next() {
+        if let Some(ref value) = self.iter.next() {
             let de = Deserializer::from_attribute_value(value);
             seed.deserialize(de).map(Some)
         } else {

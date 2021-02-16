@@ -16,7 +16,7 @@ impl<'a> DeserializerMap<'a> {
     }
 }
 
-impl<'de, 'a> MapAccess<'de> for DeserializerMap<'a> {
+impl<'de> MapAccess<'de> for DeserializerMap<'de> {
     type Error = Error;
 
     fn next_key_seed<K>(&mut self, seed: K) -> Result<Option<K::Value>>
@@ -36,7 +36,7 @@ impl<'de, 'a> MapAccess<'de> for DeserializerMap<'a> {
     where
         V: DeserializeSeed<'de>,
     {
-        if let Some(value) = self.remaining_value.take() {
+        if let Some(value) = self.remaining_value.as_ref() {
             let de = Deserializer::from_attribute_value(value);
             seed.deserialize(de)
         } else {

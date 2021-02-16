@@ -14,7 +14,7 @@ impl DeserializerEnum {
 }
 
 impl<'de, 'a> EnumAccess<'de> for DeserializerEnum {
-    type Variant = DeserializerVariant;
+    type Variant = DeserializerVariant<'de>;
     type Error = Error;
 
     fn variant_seed<V>(mut self, seed: V) -> Result<(V::Value, Self::Variant), Self::Error>
@@ -28,23 +28,23 @@ impl<'de, 'a> EnumAccess<'de> for DeserializerEnum {
         if drain.next().is_some() {
             return Err(ErrorImpl::ExpectedSingleKey.into());
         }
-        let deserializer = DeserializerVariant::from_attribute_value(value);
+        let deserializer = DeserializerVariant::from_attribute_value(&value);
         let value = seed.deserialize(key.into_deserializer())?;
         Ok((value, deserializer))
     }
 }
 
-pub struct DeserializerVariant {
-    input: AttributeValue,
+pub struct DeserializerVariant<'de> {
+    input: &'de AttributeValue,
 }
 
-impl DeserializerVariant {
-    pub fn from_attribute_value(input: AttributeValue) -> Self {
+impl<'de> DeserializerVariant<'de> {
+    pub fn from_attribute_value(input: &'de AttributeValue) -> Self {
         Self { input }
     }
 }
 
-impl<'de, 'a> VariantAccess<'de> for DeserializerVariant {
+impl<'de, 'a> VariantAccess<'de> for DeserializerVariant<'de> {
     type Error = Error;
 
     fn unit_variant(self) -> Result<()> {

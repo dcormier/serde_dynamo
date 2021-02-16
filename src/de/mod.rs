@@ -20,7 +20,7 @@ pub use deserializer::Deserializer;
 /// dual of [`to_attribute_value`](crate::to_attribute_value) and may be useful in very narrow circumstances.
 ///
 /// [rusoto_dynamodb::AttributeValue]: https://docs.rs/rusoto_dynamodb/0.45.0/rusoto_dynamodb/struct.AttributeValue.html
-pub fn from_attribute_value<'a, T>(attribute_value: AttributeValue) -> Result<T>
+pub fn from_attribute_value<'a, T>(attribute_value: &'a AttributeValue) -> Result<T>
 where
     T: Deserialize<'a>,
 {
@@ -63,7 +63,7 @@ pub fn from_item<'a, T>(item: Item) -> Result<T>
 where
     T: Deserialize<'a>,
 {
-    let attribute_value = AttributeValue {
+    let attribute_value = &AttributeValue {
         m: Some(item),
         ..AttributeValue::default()
     };

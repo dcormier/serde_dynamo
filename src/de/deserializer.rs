@@ -12,21 +12,21 @@ use serde::de::{self, IntoDeserializer, Visitor};
 
 /// A structure that deserializes AttributeValues into Rust values.
 #[derive(Debug)]
-pub struct Deserializer {
-    input: AttributeValue,
+pub struct Deserializer<'de> {
+    input: &'de AttributeValue,
 }
 
-impl Deserializer {
-    /// Create a Deserializer from an AttributeValue
-    pub fn from_attribute_value(input: AttributeValue) -> Self {
-        Deserializer { input }
+impl<'de> Deserializer<'de> {
+    /// Create a Deserializer from an `&AttributeValue`
+    pub fn from_attribute_value(input: &'de AttributeValue) -> Self {
+        Self { input }
     }
 }
 
 macro_rules! deserialize_number {
     ($self:expr, $visitor:expr, $ty:ty, $fn:ident) => {
-        if let Some(n) = $self.input.n {
-            let de = DeserializerNumber::from_string(n);
+        if let Some(ref n) = $self.input.n {
+            let de = DeserializerNumber::from_string(String::from(n));
             de.$fn($visitor)
         } else {
             return Err(ErrorImpl::ExpectedNum.into());
@@ -34,7 +34,7 @@ macro_rules! deserialize_number {
     };
 }
 
-impl<'de, 'a> de::Deserializer<'de> for Deserializer {
+impl<'de, 'a> de::Deserializer<'de> for Deserializer<'de> {
     type Error = Error;
 
     // Look at the input data to decide what Serde data model type to
